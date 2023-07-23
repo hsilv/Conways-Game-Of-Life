@@ -1,5 +1,9 @@
 #include <SDL.h>
 #include <stdio.h>
+#include <vector>
+#include <iostream>
+#include "framebuffer.cpp"
+#include "render.cpp"
 
 // Dimensiones de la ventana
 const int SCREEN_WIDTH = 640;
@@ -37,28 +41,21 @@ int main(int argc, char* args[]) {
         return 1;
     }
 
-    // Color de fondo (blanco)
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    // Inicializar el framebuffer
+    framebuffer.resize(framebufferWidth * framebufferHeight);
+    clear(); // Llenar el framebuffer con el color de fondo
 
-    // Limpiar la ventana con el color de fondo
-    SDL_RenderClear(renderer);
+    // Establecer color actual y dibujar algunos puntos en el framebuffer
+    setCurrentColor(Color(255, 0, 0)); // Color rojo
+    point(Vertex2(100, 100), framebufferWidth, framebufferHeight);
+    point(Vertex2(200, 200), framebufferWidth, framebufferHeight);
+    setCurrentColor(Color(0, 255, 0)); // Color verde
+    point(Vertex2(300, 300), framebufferWidth, framebufferHeight);
+    setCurrentColor(Color(0, 0, 255)); // Color azul
+    point(Vertex2(400, 400), framebufferWidth, framebufferHeight);
 
-    // Mensaje a mostrar
-    const char* message = "Hello, SDL!";
-    
-    // Color del mensaje (negro)
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-
-    // Coordenadas del mensaje en la ventana (centrado)
-    int x = (SCREEN_WIDTH - strlen(message) * 8) / 2;
-    int y = (SCREEN_HEIGHT - 16) / 2;
-
-    // Dibujar el mensaje en la ventana
-    for (int i = 0; message[i] != '\0'; i++) {
-        SDL_Rect srcRect = { (message[i] - 32) * 8, 0, 8, 16 };
-        SDL_Rect destRect = { x + i * 8, y, 8, 16 };
-        SDL_RenderFillRect(renderer, &destRect);
-    }
+    // Renderizar el framebuffer en la ventana
+    renderBuffer(renderer);
 
     // Mostrar la ventana
     SDL_RenderPresent(renderer);
