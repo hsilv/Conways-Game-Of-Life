@@ -1,6 +1,8 @@
 #include <iostream>
 #include <vector>
+#include <cmath>
 #include "framebuffer.h"
+#include "SDL.h"
 
 Color clearColor(0, 0, 0); // Color base o por defecto del framebuffer
 Color currentColor(0, 0, 0);
@@ -37,5 +39,53 @@ void point(const Vertex2 &vertex, size_t width, size_t height)
     {
         size_t index = y * width + x;
         framebuffer[index] = currentColor;
+    }
+}
+
+void drawLine(int x0, int y0, int x1, int y1, size_t width, size_t height)
+{
+    int dx = std::abs(x1 - x0);
+    int dy = std::abs(y1 - y0);
+    int sx = (x0 < x1) ? 1 : -1;
+    int sy = (y0 < y1) ? 1 : -1;
+    int err = dx - dy;
+
+    while (true)
+    {
+        point(Vertex2(x0, y0), width, height);
+        if (x0 == x1 && y0 == y1)
+            break;
+
+        int e2 = 2 * err;
+        if (e2 > -dy)
+        {
+            err -= dy;
+            x0 += sx;
+        }
+
+        if (e2 < dx)
+        {
+            err += dx;
+            y0 += sy;
+        }
+    }
+}
+
+
+void drawStar(int centerX, int centerY, int radius, SDL_Renderer* renderer)
+{
+    int spikes = 5; // Número de puntas de la estrella
+
+    for (int i = 0; i < spikes * 2; i++)
+    {
+        double angleRad = M_PI / spikes + i * M_PI / spikes;
+        int x1 = centerX + static_cast<int>(radius * std::cos(angleRad));
+        int y1 = centerY - static_cast<int>(radius * std::sin(angleRad)); // Restamos el valor del seno
+
+        angleRad += M_PI / spikes;
+        int x2 = centerX + static_cast<int>(radius / 2.0 * std::cos(angleRad));
+        int y2 = centerY - static_cast<int>(radius / 2.0 * std::sin(angleRad)); // Restamos el valor del seno
+
+        drawLine(x2, y2, x1, y1, framebufferWidth, framebufferHeight);
     }
 }
